@@ -152,7 +152,7 @@
             }
         };
 
-        document.head.appendChild(e);
+        document.getElementsByTagName('head')[0].appendChild(e);
     }
 
     var esquire = {
