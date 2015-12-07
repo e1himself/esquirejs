@@ -131,6 +131,30 @@
         }
     }
 
+    function appendScript(url, attrs, callback, onError)
+    {
+        var e = document.createElement('script');
+        attrs.src = url;
+        attrs.type = attrs.type || 'text/javascript';
+
+        for (var p in attrs) {
+            if (attrs.hasOwnProperty(p)) e[p] = attrs[p];
+        }
+
+        if (callback) {
+            e.onload = callback;
+        }
+
+        e.onError = function (err) {
+            log_error('Error loading script: ' + url);
+            if (onError) {
+                onError(err, url);
+            }
+        };
+
+        document.head.appendChild(e);
+    }
+
     var esquire = {
         /**
          * Adds callback that will be invoked only when all dependencies are resolved
@@ -181,24 +205,23 @@
         },
 
         /**
-         * Attaches external script to <head> and invokes callback when it loads
+         * Attaches external script with *async* attribute to <head> and invokes callback when it loads
          *
          * @param url string
          * @param callback Function
          */
         include: function (url, callback) {
-            var e = document.createElement('script');
-            e.src = url;
-            e.type = 'text/javascript';
-            e.async = true;
-            if (callback) {
-                e.onload = callback;
-            }
-            e.onError = function () {
-                log_error('Error loading script: ' + url)
-            };
+            appendScript(url, {async: true}, callback);
+        },
 
-            document.head.appendChild(e);
+        /**
+         * Attaches external script to <head> and invokes callback when it loads
+         *
+         * @param url
+         * @param callback
+         */
+        includeSync: function(url, callback) {
+            appendScript(url, {}, callback);
         },
 
         /**
